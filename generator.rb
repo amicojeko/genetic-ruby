@@ -1,97 +1,89 @@
 # -*- coding: utf-8 -*-
 require "rubygems"
 require "bundler/setup"
-require "./random"
+require "whois"
+require "active_support/core_ext/array/grouping"
+
+class String
+  def vowel?
+    self =~ /[aeiou]/i
+  end
+
+  def consonant?
+    self =~ /[^aeiou]/i
+  end
+
+  def patternize
+    self.split('').collect do |l|
+      if l.vowel?
+        "v"
+      else
+        "c"
+      end
+    end.join
+  end
+end
 
 class Generator
   attr_reader :current_generation
 
-  def random_name(n = 7)
-    # The seed file gets read and rewritten
-    # it is generated manually from random.org
-    # so when it's over please refill it
-    result = ""
-    n.times do |i|
-      begin
-        seed = @random_seeds.shift
-      rescue TypeError
-        refill_seeds
-        seed = @random_seeds.shift
-      end
-      seed = rand(36) if seed.nil?
-      if i == n - 1
-        result << @vowels[seed % @vowels.size]
-      elsif i % 2 == 0
-        result << @consonants[seed % @consonants.size]
-      else
-        result << @vowels[seed % @vowels.size]
-      end
-    end
-    File.open('seeds.txt', 'w') do |f|
-      f.write(@random_seeds.join("\n"))
-    end
-    result
-  end
-
-  def refill_seeds
-    client = RandomOrgClient.new('intinig@gmail.com')
-    if seeds = client.get_random_integer(10000, 0, 35)
-      @random_seeds = seeds.split.collect {|i| i.to_i}
-      File.open('seeds.txt', 'w') do |f|
-        f.write seeds
-      end
-    else
-      # fallback to normal numbers
-      @random_seeds = []
-      10000.times do |i|
-        @random_seeds << rand(36)
-      end
-    end
-  end
-
   def initialize(n = 200)
-    @allowed_chars = ('a'..'z').to_a + (0..9).to_a.collect {|i| i.to_s}
+    @allowed_chars = ('a'..'z').to_a - ['j', 'y'] # + (0..9).to_a.collect {|i| i.to_s}
+    @allowed_patterns = %w(cvcvcv ccvccv vccvcv cvccvv vcvccv cvvccv cvcccv ccvvcv ccvcvv vcvvcv)
     @vowels = %w(a e i o u)
-    @consonants = ('a'..'z').to_a - @vowels - ['q']
+    @consonants = ('a'..'z').to_a - @vowels
     @current_generation = []
-    @random_seeds = File.readlines('seeds.txt').collect {|i| i.to_i}
-
-    refill_seeds if @random_seeds.size < 5000
 
     begin
-      name = random_name
+      name = @allowed_chars.sample(6).join
       @current_generation << name if validates(name)
     end while @current_generation.size < 200
   end
 
   def validates(name)
-    return false unless name =~ /k/
-    return false if name =~ /.+ch.+/
-    return false if name[-1] == name[-2]
-    %w(w j k z x).each do |i|
+    return false unless @allowed_patterns.include? name.patternize
+    return false if name =~ /q[^u]/
+    return false if name =~ /np/
+    return false if name =~ /dg/
+    return false if name =~ /^x/
+    return false if name =~ /pz/
+    return false if name =~ /cx/
+    return false if name =~ /xd/
+    return false if name =~ /ml/
+    return false if name =~ /pm/
+    return false if name =~ /zd/
+    return false if name =~ /g[^aeiourhlg]/
+    return false if name =~ /b[^aeiourlsbn]/
+    return false if name =~ /z[^aeiouz]/
+    return false if name =~ /[^aeiou]k[^aeiou]/
+
+    return false if name =~ /kaco/
+    return false if name =~ /caco/
+    return false if name =~ /cako/
+    return false if name =~ /kako/
+
+    %w(w j k z x q).each do |i|
       return false if name.gsub(/[^#{i}]/, '').size > 1
     end
-    numbers = name.gsub(/\D/,'').size
-    return false if numbers > 2
 
-    if numbers == 2
-      num = (name =~ /\d{2}/)
-      return false unless num
-      return false unless num == 0 || num == 5
+    return false if name.gsub(/[^wjkzxq]/, '').size > 2
+
+    begin
+      r = Whois.query "#{name}.com"
+    rescue
+      puts "WHOIS ERROR #{name}.com"
+      return false
     end
 
-    if numbers == 1
-      num = (name =~ /\d/)
-      return false unless num == 0 || num == 6
+    if r.available?
+      puts "AVAILABLE (#{@current_generation.size}/200): #{name}.com"
+    else
+      puts "UNAVAILABLE: #{name}.com"
     end
-
-    vowels = name.gsub(/[^aeiou]/,'').size
-    return false unless vowels >= 2 and vowels <= 4
-
-    true
+    return r.available?
   end
 end
 
 g = Generator.new
 
-puts g.current_generation.inspect
+g.current_generation.sort.in_groups_of(5) {|a| puts a.join "   "}

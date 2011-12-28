@@ -1,11 +1,21 @@
+GIT
+  remote: https://github.com/ezmobius/redis-rb.git
+  revision: 158b94a489a50db5eb58115b8fa691e7eb96658a
+  specs:
+    redis (2.2.2)
+
 GEM
   specs:
     ZenTest (4.6.2)
+    activesupport (3.1.1)
+      multi_json (~> 1.0)
     autotest-fsevent (0.2.7)
       sys-uname
     autotest-growl (0.2.16)
     diff-lcs (1.1.3)
     ffi (1.0.11)
+    hiredis (0.4.3)
+    multi_json (1.0.3)
     rspec (2.7.0)
       rspec-core (~> 2.7.0)
       rspec-expectations (~> 2.7.0)
@@ -16,12 +26,17 @@ GEM
     rspec-mocks (2.7.0)
     sys-uname (0.9.0)
       ffi (>= 1.0.0)
+    whois (2.1.0)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
   ZenTest
+  activesupport
   autotest-fsevent
   autotest-growl
+  hiredis
+  redis!
   rspec
+  whois
