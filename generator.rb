@@ -36,38 +36,65 @@ class Generator
 
     begin
       name = @allowed_chars.sample(6).join
-      @current_generation << name if validates(name)
+      @current_generation << name if validates(name)# && is_available(name)
     end while @current_generation.size < 200
   end
 
   def validates(name)
     return false unless @allowed_patterns.include? name.patternize
-    return false if name =~ /q[^u]/
-    return false if name =~ /np/
-    return false if name =~ /dg/
+    
+    #regole per l'inizio della parola
+    return false if name =~ /^m[drf]/
+    return false if name =~ /^r[f]/
     return false if name =~ /^x/
-    return false if name =~ /pz/
-    return false if name =~ /cx/
-    return false if name =~ /xd/
-    return false if name =~ /ml/
+    return false if name =~ /^[vw][^aeiourl]/
+    return false if name =~ /^c[^aeiouhlnrst]/
+    return false if name =~ /^t[^aeiouhrs]/
+    
+    #coppie di consonanti da evitare
+    return false if name =~ /cx/    
+    return false if name =~ /lx/
+    return false if name =~ /np/
     return false if name =~ /pm/
+    return false if name =~ /sr/
     return false if name =~ /zd/
-    return false if name =~ /g[^aeiourhlg]/
+    return false if name =~ /d[fgk]/
+    return false if name =~ /k[wpg]/
+    return false if name =~ /m[gfl]/
+    return false if name =~ /p[dwzt]/
+    return false if name =~ /t[fp]/
+    return false if name =~ /v[x]/
+    return false if name =~ /w[x]/
+
+    #regole per le coppie di lettere all'interno della parola        
     return false if name =~ /b[^aeiourlsbn]/
+    return false if name =~ /g[^aeiourhlg]/
+    return false if name =~ /q[^uq]/
     return false if name =~ /z[^aeiouz]/
+
     return false if name =~ /[^aeiou]k[^aeiou]/
 
+    #blacklist
     return false if name =~ /kaco/
     return false if name =~ /caco/
     return false if name =~ /cako/
     return false if name =~ /kako/
+    return false if name =~ /fica/
+    return false if name =~ /fika/
+    
+
 
     %w(w j k z x q).each do |i|
       return false if name.gsub(/[^#{i}]/, '').size > 1
     end
 
     return false if name.gsub(/[^wjkzxq]/, '').size > 2
-
+    
+    return true
+  end
+  
+  def is_available(name)
+  
     begin
       r = Whois.query "#{name}.com"
     rescue
@@ -81,9 +108,15 @@ class Generator
       puts "UNAVAILABLE: #{name}.com"
     end
     return r.available?
+  
   end
+  
+  
+  
 end
 
 g = Generator.new
 
-g.current_generation.sort.in_groups_of(5) {|a| puts a.join "   "}
+g.current_generation.sort.in_groups_of(8) {|a| puts a.join "   "}
+
+
