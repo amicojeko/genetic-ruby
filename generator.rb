@@ -47,9 +47,26 @@ class Generator
     return false if name =~ /^m[drf]/
     return false if name =~ /^r[f]/
     return false if name =~ /^x/
-    return false if name =~ /^[vw][^aeiourl]/
-    return false if name =~ /^c[^aeiouhlnrst]/
-    return false if name =~ /^t[^aeiouhrs]/
+    return false if name =~ /^b[^aeiouhlry]/
+    return false if name =~ /^c[^aeiouhlnrsty]/
+    return false if name =~ /^d[^aeiouhjnrsvy]/
+    return false if name =~ /^f[^aeiouhjlnrsty]/
+    return false if name =~ /^g[^aeiouhlnrwy]/
+    return false if name =~ /^h[^aeiouy]/
+    return false if name =~ /^j[^aeiouhr]/
+    return false if name =~ /^k[^aeiouhlnrswy]/  
+    return false if name =~ /^l[^aeioujy]/
+    return false if name =~ /^m[^aeiouhrswy]/
+    return false if name =~ /^n[^aeiouhrswy]/
+    return false if name =~ /^p[^aeioufhjlnrstwy]/
+    #la regola della q è overridata piu avanti# return false if name =~ /^q[^aeiou]/ 
+    return false if name =~ /^r[^aeiouhky]/
+    return false if name =~ /^s[^aeioubcdfghklmnpqrtuvwy]/
+    return false if name =~ /^t[^aeiouhrswyz]/
+    return false if name =~ /^[vw][^aeiouhlnry]/    
+    return false if name =~ /^x[^aeiouhsy]/
+    return false if name =~ /^y[^aeiouhlmn]/
+    return false if name =~ /^z[^aeiouhjlrwy]/
     
     #coppie di consonanti da evitare
     return false if name =~ /cx/    
