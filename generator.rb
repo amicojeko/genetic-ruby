@@ -44,11 +44,12 @@ class Generator
     return false unless @allowed_patterns.include? name.patternize
     
     #regole per l'inizio della parola
+    return false if name =~ /^[aeiou][h]/
     return false if name =~ /^m[drf]/
     return false if name =~ /^r[f]/
     return false if name =~ /^x/
     return false if name =~ /^b[^aeiouhlry]/
-    return false if name =~ /^c[^aeiouhlnrsty]/
+    return false if name =~ /^c[^aeiouhlrsty]/
     return false if name =~ /^d[^aeiouhjnrsvy]/
     return false if name =~ /^f[^aeiouhjlnrsty]/
     return false if name =~ /^g[^aeiouhlnrwy]/
@@ -57,7 +58,7 @@ class Generator
     return false if name =~ /^k[^aeiouhlnrswy]/  
     return false if name =~ /^l[^aeioujy]/
     return false if name =~ /^m[^aeiouhrswy]/
-    return false if name =~ /^n[^aeiouhrswy]/
+    return false if name =~ /^n[^aeiouhswy]/
     return false if name =~ /^p[^aeioufhjlnrstwy]/
     #la regola della q è overridata piu avanti# return false if name =~ /^q[^aeiou]/ 
     return false if name =~ /^r[^aeiouhky]/
@@ -75,6 +76,7 @@ class Generator
     return false if name =~ /pm/
     return false if name =~ /sr/
     return false if name =~ /zd/
+    return false if name =~ /tlp/
     return false if name =~ /d[fgk]/
     return false if name =~ /k[wpg]/
     return false if name =~ /m[gfl]/
